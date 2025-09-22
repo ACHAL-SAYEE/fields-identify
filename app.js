@@ -117,10 +117,19 @@ function mergeEntities(entities, targetType = "ORG") {
   }
   return results;
 }
+let ner;
+
+async function initNER() {
+  if (!ner) {
+    console.log("Loading NER model...");
+    ner = await pipeline("ner", "Xenova/bert-base-NER");
+    console.log("NER model loaded.");
+  }
+}
 
 async function re(ocrLines) {
-  const ner = await pipeline("ner", "Xenova/bert-base-NER");
-
+  // const ner = await pipeline("ner", "Xenova/bert-base-NER");
+  await initNER();
   let extracted = {
     persons: [],
     companies: [],
@@ -191,7 +200,7 @@ async function re(ocrLines) {
     designation: extracted.designations,
   };
 }
-
+initNER()
 app.post("/extract", async (req, res) => {
   try {
     const { ocrLines } = req.body;
